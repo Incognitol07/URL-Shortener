@@ -102,11 +102,23 @@ def forward_to_target_url(
         )
     
     if db_url.password:
-        if not password or not verify_password(password, db_url.password):
+        if not password:
             return templates.TemplateResponse(
-                "error.html",
-                {"request": request, "error_message": "Incorrect password."},
-                status_code=status.HTTP_403_FORBIDDEN,
+                "password.html",
+                {
+                    "request": request, 
+                    "url_key": db_url.url_key
+                }
+            )
+        if not verify_password(password, db_url.password):
+            return templates.TemplateResponse(
+                "password.html",
+                {
+                    "request": request, 
+                    "url_key": db_url.url_key,
+                    "error_message": "Incorrect password"
+                },
+                status_code=status.HTTP_400_BAD_REQUEST
             )
 
     # Check if target URL is reachable
@@ -160,6 +172,7 @@ def get_url_info(
         )
     return db_url
 
+
 @router.delete("/admin/{secret_key}")
 def delete_url(secret_key: str, db: Session = Depends(get_db)):
     db_url = deactivate_db_url_by_secret_key(db, secret_key)
@@ -170,7 +183,6 @@ def delete_url(secret_key: str, db: Session = Depends(get_db)):
         )
     message = f"Successfully deleted shortened URL for '{db_url.target_url}'"
     return {"detail": message}
-
 
 
 # New endpoint to generate QR code
