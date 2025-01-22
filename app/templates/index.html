@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        :root {
+            --bg-color: #282c34;
+            --text-color: #abb2bf;
+            --container-bg: #21252b;
+            --input-bg: #2c313a;
+            --input-border: #3e4451;
+            --input-focus: #61afef;
+            --button-bg: #98c379;
+            --button-hover: #56b6c2;
+            --error-color: #e06c75;
+            --success-color: #98c379;
+            --link-color: #61afef;
+        }
+        .light-mode {
+            --bg-color: #f6f8fa;
+            --text-color: #24292e;
+            --container-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-border: #e1e4e8;
+            --input-focus: #0366d6;
+            --button-bg: #2ea44f;
+            --button-hover: #22863a;
+            --error-color: #d73a49;
+            --success-color: #28a745;
+            --link-color: #0366d6;
+        }
+        body {
+            font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        input[type="url"],
+        input[type="text"],
+        input[type="password"],
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-family: inherit;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--button-bg);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--input-bg);
+            border-radius: 4px;
+            border: 1px solid var(--input-border);
+        }
+        .result-box h5 {
+            margin-top: 0;
+            color: var(--success-color);
+        }
+        .result-box a {
+            color: var(--link-color);
+            word-break: break-all;
+        }
+        .error-message {
+            color: var(--error-color);
+            margin-top: 10px;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 11px;
+            border-radius: 2%;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background-color: var(--input-border);
+        }
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+        </svg>
+    </button>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <form id="shorten-form" method="post" action="/url">
+            <div class="form-group">
+                <label for="targetUrl">Target URL</label>
+                <input type="url" id="targetUrl" name="target_url" placeholder="Enter a valid URL" required>
+            </div>
+            <div class="form-group">
+                <label for="customKey">Custom Key (Optional)</label>
+                <input type="text" id="customKey" name="custom_key" placeholder="Enter a custom key">
+            </div>
+            <div class="form-group">
+                <label for="password">Password (Optional)</label>
+                <input type="password" id="password" name="password" placeholder="Set a password for this URL">
+            </div>
+            <div class="form-group">
+                <label for="expirationDate">Expiration Date (Optional)</label>
+                <input type="datetime-local" id="expirationDate" name="expiration_date">
+            </div>
+            <button type="submit">Shorten URL</button>
+        </form>
+        <div id="result" class="result-box" style="display: none;">
+            <h5>Shortened URL:</h5>
+            <a id="shortenedUrl" href="#" target="_blank"></a>
+            <h5>QR Code:</h5>
+            <img id="qrCode" src="#" alt="QR Code" style="max-width: 100%; height: auto;">
+        </div>
+        <div id="error" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        if (localStorage.getItem('theme') === 'light' || (!prefersDarkScheme.matches && !localStorage.getItem('theme'))) {
+            document.body.classList.add('light-mode');
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        document.getElementById("shorten-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const url = "/url";
+            const options = {
+                method: "POST",
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+
+            try {
+                const response = await fetch(url, options);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    document.getElementById("error").style.display = "block";
+                    document.getElementById("error").textContent = errorData.detail || "An error occurred.";
+                    document.getElementById("result").style.display = "none";
+                    return;
+                }
+
+                const data = await response.json();
+                const fullUrl = `/${data.url_key}`;
+
+                document.getElementById("shortenedUrl").textContent = fullUrl;
+                document.getElementById("shortenedUrl").href = fullUrl;
+
+                const qrCodeUrl = `/${data.url_key}/qr`;
+                document.getElementById("qrCode").src = qrCodeUrl;
+
+                document.getElementById("result").style.display = "block";
+                document.getElementById("error").style.display = "none";
+            } catch (error) {
+                document.getElementById("error").style.display = "block";
+                document.getElementById("error").textContent = "Failed to connect to the server.";
+                document.getElementById("result").style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Management</title>
+    <style>
+        :root {
+            --bg-color: #282c34;
+            --text-color: #abb2bf;
+            --container-bg: #21252b;
+            --input-bg: #2c313a;
+            --input-border: #3e4451;
+            --input-focus: #61afef;
+            --button-bg: #98c379;
+            --button-hover: #56b6c2;
+            --error-color: #e06c75;
+            --success-color: #98c379;
+            --link-color: #61afef;
+        }
+        body {
+            font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-family: inherit;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--button-bg);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Management</h1>
+        <form id="adminForm">
+            <div class="form-group">
+                <label for="adminAction">Action</label>
+                <select id="adminAction" name="action" required>
+                    <option value="" disabled selected>Select an action</option>
+                    <option value="view_url">View URL</option>
+                    <option value="delete_url">Delete URL</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="secretKey">Secret Key (for View/Delete)</label>
+                <input type="text" id="secretKey" name="secret_key" placeholder="Enter the secret key">
+            </div>
+            <button type="button" id="submitButton">Submit</button>
+        </form>
+        <div id="responseMessage"></div>
+    </div>
+    
+    <script>
+        document.getElementById('submitButton').addEventListener('click', async () => {
+            const action = document.getElementById('adminAction').value;
+            const secretKey = document.getElementById('secretKey').value;
+            const responseMessage = document.getElementById('responseMessage');
+            responseMessage.innerHTML = '';
+    
+            try {
+                let response;
+                if (action === 'view_url') {
+                    response = await fetch(`/admin/${secretKey}`, {
+                        method: 'GET',
+                    });
+                } else if (action === 'delete_url') {
+                    response = await fetch(`/admin/${secretKey}`, {
+                        method: 'DELETE',
+                    });
+                } else {
+                    responseMessage.innerHTML = `<p style="color: var(--error-color);">Invalid action selected</p>`;
+                    return;
+                }
+    
+                if (response.redirected) {
+                    // Handle redirects
+                    window.location.href = response.url;
+                    return;
+                }
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    responseMessage.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    const error = await response.json();
+                    responseMessage.innerHTML = `<p style="color: var(--error-color);">${error.detail || 'Error occurred'}</p>`;
+                }
+            } catch (error) {
+                responseMessage.innerHTML = `<p style="color: var(--error-color);">${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
