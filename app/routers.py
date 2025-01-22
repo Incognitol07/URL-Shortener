@@ -215,5 +215,5 @@ def generate_qr_code(url_key: str, db: Session = Depends(get_db)):
     return StreamingResponse(
         img_byte_arr,
         media_type="image/png",
-        headers={"Content-Disposition": f"inline; filename={url_key}_qrcode.png"}
+        headers={"Content-Disposition": f"filename={url_key}_qrcode.png"}
     )
