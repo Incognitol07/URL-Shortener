@@ -5,6 +5,8 @@ import string
 from sqlalchemy.orm import Session
 from app.schemas import URLBase
 from app.models import URL
+from urllib.parse import urlparse
+import socket
 
 def create_random_key(length: int = 5) -> str:
     chars = string.ascii_uppercase + string.digits
@@ -68,3 +70,19 @@ def deactivate_db_url_by_secret_key(db: Session, secret_key: str) -> URL:
         db.commit()
         db.refresh(db_url)
     return db_url
+
+
+def is_url_valid_and_exists(target_url: str) -> bool:
+    """
+    Check if the domain of the target URL exists via DNS lookup.
+    """
+    try:
+        parsed_url = urlparse(target_url)
+        domain = parsed_url.netloc
+        if not domain:
+            return False
+        # Perform DNS lookup
+        socket.gethostbyname(domain)
+        return True
+    except socket.gaierror:
+        return False

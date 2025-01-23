@@ -4,7 +4,7 @@ import qrcode
 import requests
 from io import BytesIO
 from validators import url as validate_url
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
@@ -18,7 +18,8 @@ from app.helpers import (
     get_db_url_by_key,
     get_db_url_by_secret_key,
     update_db_clicks,
-    deactivate_db_url_by_secret_key
+    deactivate_db_url_by_secret_key,
+    is_url_valid_and_exists
 )
 from app.security import hash_password, verify_password
 from app.config import settings
@@ -26,6 +27,14 @@ from app.config import settings
 templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter(tags=["URLs"])
+
+def update_clicks_in_background(db: Session, url_id: int):
+    with db.begin():
+        db_url = db.query(URL).filter(URL.id == url_id).first()
+        if db_url:
+            db_url.clicks += 1
+            db.add(db_url)
+
 
 @router.get("/admin")
 def get_admin_page(request: Request):
@@ -85,9 +94,10 @@ def create_url(
 def forward_to_target_url(
     url_key: str,
     request: Request,
-    password: str | None = None, 
-    db: Session = Depends(get_db)
-    ):
+    background_tasks: BackgroundTasks,
+    password: str | None = None,
+    db: Session = Depends(get_db),
+):
     db_url = get_db_url_by_key(db, url_key)
     if not db_url or not db_url.is_active:
         return templates.TemplateResponse(
@@ -101,13 +111,13 @@ def forward_to_target_url(
             {"request": request, "error_message": "The URL has expired."},
             status_code=status.HTTP_410_GONE,
         )
-    
+
     if db_url.password:
         if not password:
             return templates.TemplateResponse(
                 "password.html",
                 {
-                    "request": request, 
+                    "request": request,
                     "url_key": db_url.url_key
                 }
             )
@@ -115,30 +125,22 @@ def forward_to_target_url(
             return templates.TemplateResponse(
                 "password.html",
                 {
-                    "request": request, 
+                    "request": request,
                     "url_key": db_url.url_key,
                     "error_message": "Incorrect password"
                 },
                 status_code=status.HTTP_400_BAD_REQUEST
             )
 
-    # Check if target URL is reachable
-    try:
-        response = requests.head(db_url.target_url, timeout=5)
-        if response.status_code >= 400:
-            return templates.TemplateResponse(
-                "error.html",
-                {"request": request, "error_message": "Target URL is not reachable."},
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-    except requests.RequestException as e:
+    # Check if the target URL's domain exists
+    if not is_url_valid_and_exists(db_url.target_url):
         return templates.TemplateResponse(
             "error.html",
-            {"request": request, "error_message": f"Failed to verify the target URL. {e}"},
+            {"request": request, "error_message": "The domain of the target URL does not exist."},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    update_db_clicks(db, db_url)
+    background_tasks.add_task(update_clicks_in_background, db, db_url.id)
     return RedirectResponse(db_url.target_url)
 
 
