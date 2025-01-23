@@ -3,8 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-from app.schemas.auth import (
+from app.schemas import (
     UserCreate,
     UserLogin,
     RegisterResponse,
@@ -13,7 +12,7 @@ from app.schemas.auth import (
     RefreshResponse,
     RefreshToken,
 )
-from app.models.user import User
+from app.models import User
 from app.utils import (
     logger,
     hash_password,
@@ -24,9 +23,6 @@ from app.utils import (
     get_current_user,
 )
 from app.database import get_db
-
-MAX_FAILED_ATTEMPTS = 5
-LOCKOUT_DURATION = timedelta(minutes=1)
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -73,42 +69,19 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
 async def user_login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
 
-    if not db_user or not db_user.is_active:
+    if not db_user:
         logger.warning(f"Login attempt for non-existent or inactive account: {user.email}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials"
         )
 
-    # Check if the user is locked out
-    now = datetime.now()
-    if db_user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
-        time_since_last_login = now - db_user.last_login
-
-        # Reset failed attempts if lockout duration has passed
-        if time_since_last_login > LOCKOUT_DURATION:
-            db_user.failed_login_attempts = 0
-            db.commit()
-        else:
-            logger.warning(f"Account locked due to multiple failed login attempts: {user.email}")
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account locked. Try again later.",
-            )
 
     # Verify the password
     if not verify_password(user.password, db_user.password):
-        db_user.failed_login_attempts += 1
-        db_user.last_login = now  # Update last login to track failed attempts timing
-        db.commit()
         logger.warning(f"Failed login attempt for email: {user.email}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials"
         )
-
-    # Reset failed login attempts after successful login
-    db_user.failed_login_attempts = 0
-    db_user.last_login = now
-    db.commit()
 
     # Generate tokens
     access_token = create_access_token(data={"sub": db_user.username})
@@ -120,8 +93,7 @@ async def user_login(user: UserLogin, db: Session = Depends(get_db)):
         "refresh_token": refresh_token,
         "token_type": "bearer",
         "user_id": db_user.id,
-        "username": db_user.username,
-        "role": "admin" if db_user.is_admin else "user"
+        "username": db_user.username
     }
 
 
@@ -160,9 +132,6 @@ async def login_for_oauth_form(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials"
         )
-
-    db_user.last_login = datetime.now()
-    db.commit()
     # Create and return the JWT access token
     access_token = create_access_token(data={"sub": db_user.username})
     return {

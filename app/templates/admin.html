@@ -117,7 +117,12 @@
                     responseMessage.innerHTML = `<p style="color: var(--error-color);">Invalid action selected</p>`;
                     return;
                 }
-    
+                
+                if ( response.headers.get("Content-Type")=="text/html; charset=utf-8"){
+                    window.location.href = response.url;
+                    return
+                }
+
                 if (response.ok) {
                     const data = await response.json();
                     responseMessage.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
