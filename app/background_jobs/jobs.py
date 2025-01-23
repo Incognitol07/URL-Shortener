@@ -3,7 +3,7 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.models import URL
+from app.models.url import URL
 
 def deactivate_expired_urls():
     db: Session = SessionLocal()

@@ -1,6 +1,7 @@
-# app/models.py
+# app/models/url.py
 
-from sqlalchemy import Column, String, Integer, Boolean, DateTime
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 class URL(Base):
@@ -12,5 +13,8 @@ class URL(Base):
     secret_key = Column(String, unique=True, nullable=False)
     clicks = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
-    expires_at = Column(DateTime, nullable=True)  # Expiration date
-    password = Column(String, nullable=True)  # New column for hashed password
+    expires_at = Column(DateTime, nullable=True)
+    password = Column(String, nullable=True)  
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="urls")

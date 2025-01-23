@@ -7,13 +7,10 @@ from fastapi.requests import Request
 from contextlib import asynccontextmanager
 from app.database import engine, Base
 from app.config import settings
-from app.routers import router
-from apscheduler.schedulers.background import BackgroundScheduler
-from app.jobs import deactivate_expired_urls
+from app.routers import url_router, auth_router
+from app.background_jobs import start_scheduler, scheduler
 
 templates = Jinja2Templates(directory="app/templates")
-
-scheduler = BackgroundScheduler()
 
 # Create the FastAPI application
 @asynccontextmanager
@@ -22,8 +19,7 @@ async def lifespan(app: FastAPI):
     print("Starting up the application...")
     # Initialize database (create tables if they don't exist)
     Base.metadata.create_all(bind=engine)
-    scheduler.add_job(deactivate_expired_urls, "interval", hours=1)
-    scheduler.start()
+    start_scheduler()
     try:
         yield
     finally:
@@ -49,7 +45,8 @@ app.add_middleware(
 
 
 # Include router
-app.include_router(router)
+app.include_router(url_router)
+app.include_router(auth_router)
 
 
 # Root endpoint for health check

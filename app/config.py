@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str =os.getenv("DATABASE_URL")
 
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
+
     # Other security settings
     ALLOWED_HOSTS: list = ["*"]
     CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173"]  # Add frontend URL if applicable

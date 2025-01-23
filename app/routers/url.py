@@ -1,45 +1,48 @@
-# app/routers.py
+# app/routers/url.py
 
 import qrcode
 from io import BytesIO
 from validators import url as validate_url
-from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
+from fastapi import( 
+    APIRouter, 
+    HTTPException, 
+    status, 
+    Depends, 
+    BackgroundTasks
+    )
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.database import get_db
-from app.schemas import URLBase, URLInfo, PeekURL
 from app.models import URL
-from app.helpers import (
+from app.config import settings
+from app.schemas import (
+    URLBase, 
+    URLInfo, 
+    PeekURL
+    )
+from app.utils import (
     create_unique_random_key,
     get_db_url_by_key,
     get_db_url_by_secret_key,
-    update_db_clicks,
     deactivate_db_url_by_secret_key,
-    is_url_valid_and_exists
+    is_url_valid_and_exists,
+    update_clicks_in_background,
+    hash_password, 
+    verify_password
 )
-from app.security import hash_password, verify_password
-from app.config import settings
 
 templates = Jinja2Templates(directory="app/templates")
 
-router = APIRouter(tags=["URLs"])
+url_router = APIRouter(tags=["URLs"])
 
-def update_clicks_in_background(db: Session, url_id: int):
-    with db.begin():
-        db_url = db.query(URL).filter(URL.id == url_id).first()
-        if db_url:
-            db_url.clicks += 1
-            db.add(db_url)
-
-
-@router.get("/admin")
+@url_router.get("/admin")
 def get_admin_page(request: Request):
     return templates.TemplateResponse("admin.html", {"request": request})
 
-@router.post("/url", response_model=URLInfo)
+@url_router.post("/url", response_model=URLInfo)
 def create_url(
     url_sent: URLBase,
     db: Session = Depends(get_db)
@@ -89,7 +92,7 @@ def create_url(
     return db_url
 
 
-@router.get("/{url_key}")
+@url_router.get("/{url_key}")
 def forward_to_target_url(
     url_key: str,
     request: Request,
@@ -101,13 +104,13 @@ def forward_to_target_url(
     if not db_url or not db_url.is_active:
         return templates.TemplateResponse(
             "error.html",
-            {"request": request},
+            {"request": request, "error_message":f"URL with key '{url_key}' not found."},
             status_code=status.HTTP_404_NOT_FOUND,
         )
     if db_url.expires_at and db_url.expires_at <= datetime.now():
         return templates.TemplateResponse(
             "expired.html",
-            {"request": request, "error_message": "The URL has expired."},
+            {"request": request},
             status_code=status.HTTP_410_GONE,
         )
 
@@ -143,7 +146,7 @@ def forward_to_target_url(
     return RedirectResponse(db_url.target_url)
 
 
-@router.get("/peek/{url_key}", response_model=PeekURL)
+@url_router.get("/peek/{url_key}", response_model=PeekURL)
 def peek_url(
     url_key: str,
     request: Request,
@@ -160,7 +163,7 @@ def peek_url(
     return db_url
 
 
-@router.get("/admin/{secret_key}", response_model=URLInfo, name="Admin Info")
+@url_router.get("/admin/{secret_key}", response_model=URLInfo, name="Admin Info")
 def get_url_info(
     secret_key: str, 
     request: Request,
@@ -177,7 +180,7 @@ def get_url_info(
     return db_url
 
 
-@router.delete("/admin/{secret_key}")
+@url_router.delete("/admin/{secret_key}")
 def delete_url(secret_key: str, db: Session = Depends(get_db)):
     db_url = deactivate_db_url_by_secret_key(db, secret_key)
     if not db_url:
@@ -190,7 +193,7 @@ def delete_url(secret_key: str, db: Session = Depends(get_db)):
 
 
 # New endpoint to generate QR code
-@router.get("/{url_key}/qr", response_class=StreamingResponse)
+@url_router.get("/{url_key}/qr", response_class=StreamingResponse)
 def generate_qr_code(url_key: str, db: Session = Depends(get_db)):
     """
     Generate and return a QR code for the shortened URL.

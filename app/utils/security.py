@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, status
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from pydantic import ValidationError
+from app.config import settings
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -41,9 +42,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 # JWT configuration
-SECRET_KEY = os.getenv(
-    "JWT_SECRET_KEY"
-)  # Ensure the JWT_SECRET_KEY is set in the environment
+SECRET_KEY = settings.JWT_SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 15  # Expiry time in minutes for access token
 
