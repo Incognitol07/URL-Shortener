@@ -64,7 +64,7 @@
         input[type="text"],
         input[type="password"],
         input[type="datetime-local"] {
-            width: 100%;
+            width: 95%;
             padding: 10px;
             border: 1px solid var(--input-border);
             border-radius: 4px;
@@ -78,7 +78,7 @@
             box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
         }
         button {
-            width: 100%;
+            width: 50%;
             padding: 10px;
             background-color: var(--button-bg);
             color: var(--bg-color);
@@ -101,6 +101,7 @@
         .result-box h5 {
             margin-top: 0;
             color: var(--success-color);
+            margin-bottom: 0;
         }
         .result-box a {
             color: var(--link-color);
@@ -162,8 +163,15 @@
             <button type="submit">Shorten URL</button>
         </form>
         <div id="result" class="result-box" style="display: none;">
+            <h5>Secret Key:</h5>
+            <a id="secretKey"></a>
+            <br>
             <h5>Shortened URL:</h5>
             <a id="shortenedUrl" href="#" target="_blank"></a>
+            <br>
+            <h5>Expires at:</h5>
+            <a id="expireAt"></a>
+            <br>
             <h5>QR Code:</h5>
             <img id="qrCode" src="#" alt="QR Code" style="max-width: 100%; height: auto;">
         </div>
@@ -214,6 +222,8 @@
                 const data = await response.json();
                 const fullUrl = `/${data.url_key}`;
 
+                document.getElementById("secretKey").textContent = data.secret_key;
+                document.getElementById("expireAt").textContent = data.expires_at || "No time specified";
                 document.getElementById("shortenedUrl").textContent = fullUrl;
                 document.getElementById("shortenedUrl").href = fullUrl;
 

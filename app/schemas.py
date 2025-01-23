@@ -16,9 +16,11 @@ class URL(URLBase):
     class Config:
         from_attributes = True
 
-class URLInfo(URL):
+class URLInfo(BaseModel):
+    target_url: str
     url_key: str
     secret_key: str
+    expires_at: str | None = None
 
 class PeekURL(BaseModel):
     target_url: str

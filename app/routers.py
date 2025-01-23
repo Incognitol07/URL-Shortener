@@ -77,6 +77,7 @@ def create_url(
     db.add(db_url)
     db.commit()
     db.refresh(db_url)
+    db_url.expires_at = db_url.expires_at.ctime() if db_url.expires_at else None
     return db_url
 
 
@@ -130,10 +131,10 @@ def forward_to_target_url(
                 {"request": request, "error_message": "Target URL is not reachable."},
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-    except requests.RequestException:
+    except requests.RequestException as e:
         return templates.TemplateResponse(
             "error.html",
-            {"request": request, "error_message": f"Failed to verify the target URL."},
+            {"request": request, "error_message": f"Failed to verify the target URL. {e}"},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -154,6 +155,7 @@ def peek_url(
             {"request": request, "error_message": f"URL Key {url_key} not found."},
             status_code=status.HTTP_404_NOT_FOUND,
         )
+    db_url.expires_at = db_url.expires_at.ctime() if db_url.expires_at else None
     return db_url
 
 
@@ -170,6 +172,7 @@ def get_url_info(
             {"request": request, "error_message": f"URL with secret key {secret_key} not found."},
             status_code=status.HTTP_404_NOT_FOUND,
         )
+    db_url.expires_at = db_url.expires_at.ctime() if db_url.expires_at else None
     return db_url
 
 

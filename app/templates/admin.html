@@ -118,12 +118,6 @@
                     return;
                 }
     
-                if (response.redirected) {
-                    // Handle redirects
-                    window.location.href = response.url;
-                    return;
-                }
-    
                 if (response.ok) {
                     const data = await response.json();
                     responseMessage.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
