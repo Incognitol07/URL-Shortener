@@ -19,7 +19,6 @@ class URL(URLBase):
 class URLInfo(BaseModel):
     target_url: str
     url_key: str
-    secret_key: str
     expires_at: str | None = None
 
 class PeekURL(BaseModel):

@@ -169,10 +169,6 @@
             <button type="submit">Shorten URL</button>
         </form>        
         <div id="result" class="result-box" style="display: none;">
-            <h5>Secret Key:</h5>
-            <a id="secretKey"></a>
-            <br>
-            <br>
             <h5>Shortened URL:</h5>
             <a id="shortenedUrl" href="#" target="_blank"></a>
             <br>
@@ -231,7 +227,6 @@
                 const data = await response.json();
                 const fullUrl = `/${data.url_key}`;
 
-                document.getElementById("secretKey").textContent = data.secret_key;
                 document.getElementById("expireAt").textContent = data.expires_at || "No time specified";
                 document.getElementById("shortenedUrl").textContent = fullUrl;
                 document.getElementById("shortenedUrl").href = fullUrl;
