@@ -2,8 +2,6 @@
 
 This project is a feature-rich URL Shortener API and web application, allowing users to generate short URLs with added functionalities like password protection, expiration dates, and click tracking analytics.
 
----
-
 ## Features
 
 - **URL Shortening:** Create shortened versions of long URLs for easy sharing.
@@ -12,8 +10,6 @@ This project is a feature-rich URL Shortener API and web application, allowing u
 - **Click Tracking:** View the number of times each shortened URL is accessed.
 - **Domain Validation:** Automatically checks the validity of target URLs before redirection.
 - **Background Tasks:** Perform operations (e.g., click tracking) asynchronously for optimized performance.
-
----
 
 ## Installation
 
@@ -49,7 +45,7 @@ Follow these steps to set up the project locally:
 5. **Start the Application:**
 
    ```bash
-   uvicorn main:app --reload
+   uvicorn app.main:app --reload
    ```
 
 6. **Access the App:**
