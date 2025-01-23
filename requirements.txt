@@ -3,5 +3,4 @@ sqlalchemy~=2.0
 python-dotenv~=1.0
 uvicorn[standard]~=0.23
 validators
-requests
 qrcode[pil]

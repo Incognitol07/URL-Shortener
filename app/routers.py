@@ -1,7 +1,6 @@
 # app/routers.py
 
 import qrcode
-import requests
 from io import BytesIO
 from validators import url as validate_url
 from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
@@ -151,7 +150,7 @@ def peek_url(
     db: Session = Depends(get_db)
     ):
     db_url = get_db_url_by_key(db, url_key)
-    if not db_url:
+    if not db_url or db_url.password:
         return templates.TemplateResponse(
             "error.html",
             {"request": request, "error_message": f"URL Key {url_key} not found."},
