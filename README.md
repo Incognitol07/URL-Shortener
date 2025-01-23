@@ -22,15 +22,15 @@ Follow these steps to set up the project locally:
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/url-shortener.git
-   cd url-shortener
+   git clone https://github.com/Incognitol07/URL-Shortener.git
+   cd URL-Shortener
    ```
 
 2. **Set Up the Virtual Environment:**
 
    ```bash
    python -m venv venv
-   source venv/bin/activate    # On Windows: venv\Scripts\activate
+   .venv/bin/activate    # On Windows: venv\Scripts\activate
    ```
 
 3. **Install Dependencies:**
