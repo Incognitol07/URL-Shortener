@@ -115,19 +115,25 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            height: 8%;
             background: none;
             border: none;
             color: var(--text-color);
             cursor: pointer;
-            padding: 11px 20px;
-            border-radius: 45%;
+            padding: 0;
+            border-radius: 50%;
             transition: all 0.3s ease;
-            width: 4%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         .theme-toggle:hover {
             background-color: var(--input-border);
+            transform: scale(1.1);
         }
+
         .theme-toggle svg {
             width: 24px;
             height: 24px;
