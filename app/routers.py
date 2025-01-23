@@ -101,12 +101,12 @@ def forward_to_target_url(
     if not db_url or not db_url.is_active:
         return templates.TemplateResponse(
             "error.html",
-            {"request": request, "error_message": f"URL Key '{url_key}' not found or inactive."},
+            {"request": request},
             status_code=status.HTTP_404_NOT_FOUND,
         )
     if db_url.expires_at and db_url.expires_at <= datetime.now():
         return templates.TemplateResponse(
-            "error.html",
+            "expired.html",
             {"request": request, "error_message": "The URL has expired."},
             status_code=status.HTTP_410_GONE,
         )
