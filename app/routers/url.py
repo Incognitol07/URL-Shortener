@@ -106,8 +106,13 @@ def forward_to_target_url(
         )
     if db_url.expires_at and db_url.expires_at <= datetime.now():
         return templates.TemplateResponse(
-            "expired.html",
-            {"request": request},
+            "error.html",
+            {
+                "request": request, 
+                "error_title":"This URL has expired!",
+                "error_message":"The shortened URL you tried to access is no longer active.",
+                "page_title":"URL Expired"
+            },
             status_code=status.HTTP_410_GONE,
         )
 

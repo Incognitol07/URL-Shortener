@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
 from contextlib import asynccontextmanager
 from app.database import engine, Base
@@ -11,6 +12,9 @@ from app.routers import url_router, auth_router
 from app.background_jobs import start_scheduler, scheduler
 
 templates = Jinja2Templates(directory="app/templates")
+
+
+
 
 # Create the FastAPI application
 @asynccontextmanager
@@ -34,6 +38,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Mount static files directory
+app.mount(
+    "/static",
+    StaticFiles(directory="app/static"),
+    name="static",
+)
 # CORS settings
 app.add_middleware(
     CORSMiddleware,

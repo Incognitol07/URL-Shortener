@@ -1,184 +1,199 @@
 :root {
-    --bg-color: #282c34;
-    --text-color: #abb2bf;
-    --container-bg: #21252b;
-    --input-bg: #2c313a;
-    --input-border: #3e4451;
-    --input-focus: #61afef;
-    --button-bg: #98c379;
-    --button-hover: #56b6c2;
-    --error-color: #e06c75;
-    --success-color: #98c379;
-    --link-color: #61afef;
+  --bg-color: #282c34;
+  --text-color: #abb2bf;
+  --container-bg: #21252b;
+  --input-bg: #2c313a;
+  --input-border: #3e4451;
+  --input-focus: #61afef;
+  --button-bg: #98c379;
+  --button-hover: #56b6c2;
+  --error-color: #e06c75;
+  --success-color: #98c379;
+  --link-color: #61afef;
 }
 
 .light-mode {
-    --bg-color: #f6f8fa;
-    --text-color: #24292e;
-    --container-bg: #ffffff;
-    --input-bg: #ffffff;
-    --input-border: #e1e4e8;
-    --input-focus: #0366d6;
-    --button-bg: #2ea44f;
-    --button-hover: #22863a;
-    --error-color: #d73a49;
-    --success-color: #28a745;
-    --link-color: #0366d6;
+  --bg-color: #f6f8fa;
+  --text-color: #24292e;
+  --container-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #e1e4e8;
+  --input-focus: #0366d6;
+  --button-bg: #2ea44f;
+  --button-hover: #22863a;
+  --error-color: #d73a49;
+  --success-color: #28a745;
+  --link-color: #0366d6;
 }
 
 body {
-    font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  font-family: "Fira Code", "Cascadia Code", "Source Code Pro", monospace;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .container {
-    max-width: 600px;
-    width: 90%;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: var(--container-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background-color: var(--container-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: var(--text-color);
-    font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-size: 2rem;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  opacity: 0.8;
 }
 
 input[type="url"],
 input[type="text"],
 input[type="email"],
 input[type="password"],
-input[type="datetime-local"],
+input[type="datetime-local"] {
+  width: 90%;
+  padding: 1rem;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
 select {
-    width: 100%;
-    padding: 0.75rem;
+    width: 96%;
+    padding: 1rem;
     border: 1px solid var(--input-border);
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: var(--input-bg);
     color: var(--text-color);
     font-family: inherit;
-    font-size: 1rem;
-}
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
 
 input:focus,
 select:focus {
-    outline: none;
-    border-color: var(--input-focus);
-    box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
 }
 
-button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--button-bg);
-    color: var(--bg-color);
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+button {    
+  width: 97%;
+  padding: 0.75rem;
+  background-color: var(--button-bg);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: var(--button-hover);
+  background-color: var(--button-hover);
 }
 
 .result-box {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    background-color: var(--input-bg);
-    border-radius: 4px;
-    border: 1px solid var(--input-border);
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--input-bg);
+  border-radius: 4px;
+  border: 1px solid var(--input-border);
 }
 
 .result-box h5 {
-    margin-top: 0;
-    color: var(--success-color);
-    margin-bottom: 0.5rem;
+  margin-top: 0;
+  color: var(--success-color);
+  margin-bottom: 0.5rem;
 }
 
 .result-box a {
-    color: var(--link-color);
-    word-break: break-all;
+  color: var(--link-color);
+  word-break: break-all;
 }
 
 .error-message {
-    color: var(--error-color);
-    margin-top: 1rem;
+  color: var(--error-color);
+  margin-top: 1rem;
 }
 
 .success-message {
-    color: var(--success-color);
-    margin-top: 1rem;
+  color: var(--success-color);
+  margin-top: 1rem;
 }
 
 .theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: none;
-    border: none;
-    color: var(--text-color);
-    cursor: pointer;
-    padding: 0;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .theme-toggle:hover {
-    background-color: var(--input-border);
-    transform: scale(1.1);
+  background-color: var(--input-border);
+  transform: scale(1.1);
 }
 
 .theme-toggle svg {
-    width: 24px;
-    height: 24px;
-    fill: currentColor;
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
 }
 
 @media (max-width: 600px) {
-    .container {
-        padding: 1rem;
-    }
+  .container {
+    padding: 1rem;
+  }
 
-    h1 {
-        font-size: 1.5rem;
-    }
+  h1 {
+    font-size: 1.5rem;
+  }
 
-    input[type="url"],
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="datetime-local"],
-    select,
-    button {
-        font-size: 0.9rem;
-    }
+  input[type="url"],
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="datetime-local"],
+  select,
+  button {
+    font-size: 0.9rem;
+  }
 }
+
