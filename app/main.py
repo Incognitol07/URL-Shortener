@@ -44,9 +44,6 @@ app.add_middleware(
 )
 
 
-# Include router
-app.include_router(url_router)
-app.include_router(auth_router)
 
 
 # Root endpoint for health check
@@ -54,4 +51,19 @@ app.include_router(auth_router)
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/sign-up")
+def index(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request})
 
+@app.get("/login")
+def index(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/admin")
+def get_admin_page(request: Request):
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+
+# Include router
+app.include_router(url_router)
+app.include_router(auth_router)

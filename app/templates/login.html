@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Shortener</title>
+    <title>Login</title>
     <style>
         :root {
             --bg-color: #282c34;
@@ -60,10 +60,8 @@
             margin-bottom: 5px;
             color: var(--text-color);
         }
-        input[type="url"],
-        input[type="text"],
-        input[type="password"],
-        input[type="datetime-local"] {
+        input[type="email"],
+        input[type="password"] {
             width: 95%;
             padding: 10px;
             border: 1px solid var(--input-border);
@@ -78,7 +76,7 @@
             box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
         }
         button {
-            width: 50%;
+            width: 100%;
             padding: 10px;
             background-color: var(--button-bg);
             color: var(--bg-color);
@@ -91,24 +89,12 @@
         button:hover {
             background-color: var(--button-hover);
         }
-        .result-box {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: var(--input-bg);
-            border-radius: 4px;
-            border: 1px solid var(--input-border);
-        }
-        .result-box h5 {
-            margin-top: 0;
-            color: var(--success-color);
-            margin-bottom: 0;
-        }
-        .result-box a {
-            color: var(--link-color);
-            word-break: break-all;
-        }
         .error-message {
             color: var(--error-color);
+            margin-top: 10px;
+        }
+        .success-message {
+            color: var(--success-color);
             margin-top: 10px;
         }
         .theme-toggle {
@@ -128,16 +114,29 @@
             justify-content: center;
             align-items: center;
         }
-
         .theme-toggle:hover {
             background-color: var(--input-border);
             transform: scale(1.1);
         }
-
         .theme-toggle svg {
             width: 24px;
             height: 24px;
             fill: currentColor;
+        }
+        .sign-up-button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .sign-up-button:hover {
+            background-color: var(--input-border);
         }
     </style>
 </head>
@@ -148,38 +147,20 @@
         </svg>
     </button>
     <div class="container">
-        <h1>URL Shortener</h1>
-        <form id="shorten-form" method="post" action="/url" autocomplete="off">
+        <h1>Login</h1>
+        <form id="login-form">
             <div class="form-group">
-                <label for="targetUrl">Target URL</label>
-                <input type="url" id="targetUrl" name="target_url" placeholder="Enter a valid URL" required autocomplete="off">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
             </div>
             <div class="form-group">
-                <label for="customKey">Custom Key (Optional)</label>
-                <input type="text" id="customKey" name="custom_key" placeholder="Enter a custom key" autocomplete="off">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
             </div>
-            <div class="form-group">
-                <label for="password">Password (Optional)</label>
-                <input type="password" id="password" name="password" placeholder="Set a password for this URL" autocomplete="new-password">
-            </div>
-            <div class="form-group">
-                <label for="expirationDate">Expiration Date (Optional)</label>
-                <input type="datetime-local" id="expirationDate" name="expiration_date" autocomplete="off">
-            </div>
-            <button type="submit">Shorten URL</button>
-        </form>        
-        <div id="result" class="result-box" style="display: none;">
-            <h5>Shortened URL:</h5>
-            <a id="shortenedUrl" href="#" target="_blank"></a>
-            <br>
-            <br>
-            <h5>Expires at:</h5>
-            <a id="expireAt"></a>
-            <br>
-            <br>
-            <h5>QR Code:</h5>
-            <img id="qrCode" src="#" alt="QR Code" style="max-width: 100%; height: auto;">
-        </div>
+            <button type="submit">Login</button>
+        </form>
+        <button class="sign-up-button" onclick="window.location.href='/sign-up'">Sign Up</button>
+        <div id="message" class="success-message" style="display: none;"></div>
         <div id="error" class="error-message" style="display: none;"></div>
     </div>
 
@@ -198,69 +179,13 @@
 
         themeToggle.addEventListener('click', toggleTheme);
 
-        // Check if user is authenticated
-        function isAuthenticated() {
-            return localStorage.getItem('access_token') !== null;
-        }
-
-        // Refresh token function
-        async function refreshToken() {
-            const refreshToken = localStorage.getItem('refresh_token');
-            if (!refreshToken) {
-                throw new Error('No refresh token available');
-            }
-
-            const response = await fetch('/refresh-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ refresh_token: refreshToken }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to refresh token');
-            }
-
-            const data = await response.json();
-            localStorage.setItem('access_token', data.access_token);
-            return data.access_token;
-        }
-
-        // Authenticated fetch function
-        async function authenticatedFetch(url, options = {}) {
-            if (!isAuthenticated()) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const accessToken = localStorage.getItem('access_token');
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${accessToken}`,
-            };
-
-            try {
-                const response = await fetch(url, options);
-                if (response.status === 401 && response.statusText === 'Token has expired') {
-                    const newAccessToken = await refreshToken();
-                    options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                    return fetch(url, options);
-                }
-                return response;
-            } catch (error) {
-                console.error('Error in authenticatedFetch:', error);
-                throw error;
-            }
-        }
-
-        document.getElementById("shorten-form").addEventListener("submit", async (event) => {
+        document.getElementById("login-form").addEventListener("submit", async (event) => {
             event.preventDefault();
 
             const form = event.target;
             const formData = new FormData(form);
 
-            const url = "/url";
+            const url = "/auth/user/login";
             const options = {
                 method: "POST",
                 body: JSON.stringify(Object.fromEntries(formData)),
@@ -270,39 +195,35 @@
             };
 
             try {
-                const response = await authenticatedFetch(url, options);
+                const response = await fetch(url, options);
 
                 if (!response.ok) {
                     const errorData = await response.json();
                     document.getElementById("error").style.display = "block";
-                    document.getElementById("error").textContent = errorData.detail || "An error occurred.";
-                    document.getElementById("result").style.display = "none";
+                    document.getElementById("error").textContent = errorData.detail || "An error occurred during login.";
+                    document.getElementById("message").style.display = "none";
                     return;
                 }
 
                 const data = await response.json();
-                const fullUrl = `/${data.url_key}`;
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
 
-                document.getElementById("expireAt").textContent = data.expires_at || "No time specified";
-                document.getElementById("shortenedUrl").textContent = fullUrl;
-                document.getElementById("shortenedUrl").href = fullUrl;
-
-                const qrCodeUrl = `/${data.url_key}/qr`;
-                document.getElementById("qrCode").src = qrCodeUrl;
-
-                document.getElementById("result").style.display = "block";
+                document.getElementById("message").style.display = "block";
+                document.getElementById("message").textContent = "Login successful!";
                 document.getElementById("error").style.display = "none";
+                
+                // Redirect to index.html after successful login
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
             } catch (error) {
                 document.getElementById("error").style.display = "block";
                 document.getElementById("error").textContent = "Failed to connect to the server.";
-                document.getElementById("result").style.display = "none";
+                document.getElementById("message").style.display = "none";
             }
         });
-
-        // Check authentication on page load
-        if (!isAuthenticated()) {
-            window.location.href = 'login';
-        }
     </script>
 </body>
 </html>
+

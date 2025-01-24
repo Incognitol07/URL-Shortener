@@ -38,10 +38,6 @@ templates = Jinja2Templates(directory="app/templates")
 
 url_router = APIRouter(tags=["URLs"])
 
-@url_router.get("/admin")
-def get_admin_page(request: Request):
-    return templates.TemplateResponse("admin.html", {"request": request})
-
 @url_router.post("/url", response_model=URLInfo)
 def create_url(
     url_sent: URLBase,
