@@ -1,4 +1,4 @@
-# app/security.py
+# app/utils/security.py
 
 import os
 import jwt

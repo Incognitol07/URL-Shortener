@@ -1,4 +1,4 @@
-# app/helpers/crud.py
+# app/utils/helpers/crud/url.py
 
 from sqlalchemy.orm import Session
 from app.schemas import URLBase

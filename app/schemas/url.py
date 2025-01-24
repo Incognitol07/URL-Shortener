@@ -1,4 +1,4 @@
-# app/schemas.py
+# app/schemas/url.py
 
 from pydantic import BaseModel, Field
 from typing import Optional

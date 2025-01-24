@@ -1,4 +1,4 @@
-# app/helpers/keygen.py
+# app/utils/helpers/keygen.py
 
 import secrets
 import string

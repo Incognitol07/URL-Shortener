@@ -1,3 +1,5 @@
+# app/utils/logging_config.py
+
 import logging
 from logging.handlers import RotatingFileHandler
 

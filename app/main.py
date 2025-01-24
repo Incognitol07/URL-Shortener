@@ -13,9 +13,6 @@ from app.background_jobs import start_scheduler, scheduler
 
 templates = Jinja2Templates(directory="app/templates")
 
-
-
-
 # Create the FastAPI application
 @asynccontextmanager
 async def lifespan(app: FastAPI):

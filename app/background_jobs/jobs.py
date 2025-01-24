@@ -1,4 +1,4 @@
-# app/jobs.py
+# app/background_jobs/jobs.py
 
 from datetime import datetime
 from sqlalchemy.orm import Session
