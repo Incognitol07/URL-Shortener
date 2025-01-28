@@ -89,7 +89,7 @@
                 }, 1500);
             } catch (error) {
                 document.getElementById("error").style.display = "block";
-                document.getElementById("error").textContent = "Failed to connect to the server.";
+                document.getElementById("error").textContent = `Failed to connect to the server.${error}`;
                 document.getElementById("message").style.display = "none";
             }
         });
