@@ -4,3 +4,4 @@ python-dotenv~=1.0
 uvicorn[standard]~=0.23
 validators
 qrcode[pil]
+psycopg2-binary
