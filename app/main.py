@@ -74,3 +74,14 @@ def get_admin_page(request: Request):
 # Include router
 app.include_router(url_router)
 app.include_router(auth_router)
+
+if __name__ == "__main__":
+    import uvicorn
+
+    # Use '0.0.0.0' to make the app accessible externally
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        log_level="info",
+    )
