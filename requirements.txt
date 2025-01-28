@@ -5,3 +5,6 @@ uvicorn[standard]~=0.23
 validators
 qrcode[pil]
 psycopg2-binary
+pyjwt~=2.8
+passlib[bcrypt]~=1.7
+apscheduler~=3.10
