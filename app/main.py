@@ -50,9 +50,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-
 # Root endpoint for health check
 @app.get("/")
 def index(request: Request):
